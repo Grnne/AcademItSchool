@@ -11,29 +11,32 @@ internal class BlurImage
         using Bitmap inputImage = new(path + "image.jpg");
         inputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
         using Bitmap outputImage = inputImage;
+        int blurIntensity = 5;  // Можно использовать нечетные числа
 
-        BlurWholeImage(inputImage, outputImage, 3);
+        BlurWholeImage(inputImage, outputImage, blurIntensity);
         outputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
     }
 
     // TODO стоит сделать, наверное, шарпен, тиснение и акварель
-    
+
     public static Bitmap BlurWholeImage(Bitmap inputImage, Bitmap outputImage, int blurIntensity)
     {
+        Color[,] convolutionMatrix = new Color[blurIntensity, blurIntensity];
+
         for (int y = 0; y < inputImage.Height; ++y)
         {
             for (int x = 0; x < inputImage.Width; ++x)
             {
-                outputImage.SetPixel(x, y, GetBlurredPixel(x, y, inputImage, blurIntensity));
+                outputImage.SetPixel(x, y, GetBlurredPixel(x, y, inputImage, convolutionMatrix, blurIntensity));
             }
         }
 
         return outputImage;
     }
 
-    public static Color GetBlurredPixel(int x, int y, Bitmap inputImage, int blurIntensity)
+    public static Color GetBlurredPixel(int x, int y, Bitmap inputImage, Color[,] convolutionMatrix, int blurIntensity)
     {
-        Color[,] convolutionMatrix = GetConvolutionMatrix(x, y, inputImage, blurIntensity);
+        convolutionMatrix = GetConvolutionMatrix(x, y, inputImage, convolutionMatrix, blurIntensity);
         (double, double, double) rgbSum = (0, 0, 0);
 
         foreach (Color pixel in convolutionMatrix)
@@ -44,16 +47,15 @@ internal class BlurImage
         }
 
         blurIntensity *= blurIntensity;
-        rgbSum.Item1 /= blurIntensity;
-        rgbSum.Item2 /= blurIntensity;
-        rgbSum.Item3 /= blurIntensity;
 
-        return Color.FromArgb(Saturate(rgbSum.Item1), Saturate(rgbSum.Item2), Saturate(rgbSum.Item3));
+        return Color.FromArgb(
+            Saturate(rgbSum.Item1 / blurIntensity),
+            Saturate(rgbSum.Item2 / blurIntensity),
+            Saturate(rgbSum.Item3 / blurIntensity));
     }
 
-    public static Color[,] GetConvolutionMatrix(int x, int y, Bitmap inputImage, int matrixSize)
+    public static Color[,] GetConvolutionMatrix(int x, int y, Bitmap inputImage, Color[,] convolutionMatrix, int matrixSize)
     {
-        Color[,] convolutionMatrix = new Color[matrixSize, matrixSize];
         int halfMatrixSize = matrixSize / 2;
 
         for (int i = 0; i < matrixSize; i++)
@@ -63,8 +65,8 @@ internal class BlurImage
                 int currentPositionX = x - halfMatrixSize + j;
                 int currentPositionY = y - halfMatrixSize + i;
 
-                if (currentPositionX < 0 || currentPositionX + 1 > inputImage.Width
-                    || currentPositionY < 0 || currentPositionY + 1 > inputImage.Height)
+                if (currentPositionX < 0 || currentPositionX >= inputImage.Width
+                    || currentPositionY < 0 || currentPositionY >= inputImage.Height)
                 {
                     convolutionMatrix[i, j] = inputImage.GetPixel(x, y);
                 }
