@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "auxillary": {
+      "commandName": "Project",
+      "commandLineArgs": "xxxx\r\n\"cc vvvv\""
+    }
+  }
+}
