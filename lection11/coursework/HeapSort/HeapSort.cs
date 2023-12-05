@@ -59,15 +59,13 @@ internal class HeapSort
                 largestIndex = child2Index;
             }
 
-            if (largestIndex != index)
-            {
-                (array[index], array[largestIndex]) = (array[largestIndex], array[index]);
-                index = largestIndex;
-            }
-            else
+            if (largestIndex == index)
             {
                 return;
             }
+
+            (array[index], array[largestIndex]) = (array[largestIndex], array[index]);
+            index = largestIndex;
         }
     }
 }
