@@ -45,27 +45,27 @@ internal class HeapSort
     {
         while (true)
         {
-            int largestIndex = index;
+            int maxIndex = index;
             int child1Index = index * 2 + 1;
             int child2Index = index * 2 + 2;
 
-            if (child1Index < length && array[child1Index] > array[largestIndex])
+            if (child1Index < length && array[child1Index] > array[maxIndex])
             {
-                largestIndex = child1Index;
+                maxIndex = child1Index;
             }
 
-            if (child2Index < length && array[child2Index] > array[largestIndex])
+            if (child2Index < length && array[child2Index] > array[maxIndex])
             {
-                largestIndex = child2Index;
+                maxIndex = child2Index;
             }
 
-            if (largestIndex == index)
+            if (maxIndex == index)
             {
                 return;
             }
 
-            (array[index], array[largestIndex]) = (array[largestIndex], array[index]);
-            index = largestIndex;
+            (array[index], array[maxIndex]) = (array[maxIndex], array[index]);
+            index = maxIndex;
         }
     }
 }
