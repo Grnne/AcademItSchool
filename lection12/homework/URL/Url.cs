@@ -15,11 +15,11 @@ internal class Url
 
     public static string GetServerName(string url)
     {
-        int serverNameFirstIndex = url.IndexOf("//") + 2;
+        int serverNameFirstIndex = url.IndexOf("://") + 3;
         int serverNameLastIndex = url.IndexOf('/', serverNameFirstIndex);
-        serverNameLastIndex = serverNameLastIndex != -1 ? serverNameLastIndex - serverNameFirstIndex : url.Length - serverNameFirstIndex;
+        int serverNameLength = serverNameLastIndex != -1 ? serverNameLastIndex - serverNameFirstIndex : url.Length - serverNameFirstIndex;
 
-        return url.Substring(serverNameFirstIndex, serverNameLastIndex);
+        return url.Substring(serverNameFirstIndex, serverNameLength);
     }
 
     // этот метод выглядит лучше :D

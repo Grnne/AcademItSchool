@@ -12,13 +12,13 @@ internal class MultiplicationTableArray
         Console.Write("Введите количество столбцов: ");
         int columnsAmount = int.Parse(Console.ReadLine()!);
 
-        int[,] multiplicationTableMatrix = GetMultiplicationTable(rowsAmount, columnsAmount);
+        int[,] multiplicationTable = GetMultiplicationTable(rowsAmount, columnsAmount);
 
-        for (int i = 0; i < multiplicationTableMatrix.GetLength(0); i++)
+        for (int i = 0; i < multiplicationTable.GetLength(0); i++)
         {
-            for (int j = 0; j < multiplicationTableMatrix.GetLength(1); j++)
+            for (int j = 0; j < multiplicationTable.GetLength(1); j++)
             {
-                Console.Write(multiplicationTableMatrix[i, j] + " ");
+                Console.Write(multiplicationTable[i, j] + " ");
             }
 
             Console.WriteLine();
@@ -27,16 +27,16 @@ internal class MultiplicationTableArray
 
     public static int[,] GetMultiplicationTable(int rowsAmount, int columnsAmount)
     {
-        int[,] multiplicationTableMatrix = new int[columnsAmount, rowsAmount];
+        int[,] multiplicationTable = new int[rowsAmount, columnsAmount];
 
-        for (int i = 0; i < columnsAmount; i++)
+        for (int i = 0; i < rowsAmount; i++)
         {
-            for (int j = 0; j < rowsAmount; j++)
+            for (int j = 0; j < columnsAmount; j++)
             {
-                multiplicationTableMatrix[i, j] = (i + 1) * (j + 1);
+                multiplicationTable[i, j] = (i + 1) * (j + 1);
             }
         }
 
-        return multiplicationTableMatrix;
+        return multiplicationTable;
     }
 }

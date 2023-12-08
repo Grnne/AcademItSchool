@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace OccurrencesAmount;
+﻿namespace OccurrencesAmount;
 
 internal class OccurrencesAmount
 {
@@ -8,42 +6,38 @@ internal class OccurrencesAmount
     {
         string path = "..\\..\\..\\Content\\txt\\";
         using StreamReader streamReader = new(path + "input.txt");
-        
+
         string currentLine;
-        int count = 0;
+        int occurrencesAmount = 0;
         string desiredSubstring = "SHALL";
 
         while ((currentLine = streamReader.ReadLine()!) != null)
         {
-            int currentLineOccurrencesAmount = CountSubstringsInString(currentLine, desiredSubstring);
-
-            if (currentLineOccurrencesAmount != -1)
-            {
-                count += currentLineOccurrencesAmount;
-            }
+            int currentLineOccurrencesAmount = GetOccurrencesAmount(currentLine, desiredSubstring);
+            occurrencesAmount += currentLineOccurrencesAmount;
         }
 
-        Console.WriteLine($"Количество вхождений подстроки {desiredSubstring} в данный текст: {count}");
+        Console.WriteLine($"Количество вхождений подстроки {desiredSubstring} в данный текст: {occurrencesAmount}");
     }
 
-    public static int CountSubstringsInString(string stringLine, string substring)
+    public static int GetOccurrencesAmount(string line, string substring)
     {
-        int count = 0;
-        int index = -1;
+        int occurrencesAmount = 0;
+        int index = 0;
 
-        do
+        while(true)
         {
-            index = stringLine.IndexOf(substring, index + 1, StringComparison.OrdinalIgnoreCase);
+            index = line.IndexOf(substring, index, StringComparison.OrdinalIgnoreCase);
 
             if (index == -1)
             {
                 break;
             }
 
-            count++;
+            index += substring.Length;
+            occurrencesAmount++;
         }
-        while (index != -1);
 
-        return count;
+        return occurrencesAmount;
     }
 }
