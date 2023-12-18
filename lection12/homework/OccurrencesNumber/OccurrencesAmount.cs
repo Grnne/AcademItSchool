@@ -25,7 +25,7 @@ internal class OccurrencesAmount
         int occurrencesAmount = 0;
         int index = 0;
 
-        while(true)
+        while (true)
         {
             index = line.IndexOf(substring, index, StringComparison.OrdinalIgnoreCase);
 
