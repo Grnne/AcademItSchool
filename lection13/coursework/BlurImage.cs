@@ -9,87 +9,83 @@ internal class BlurImage
     {
         string path = "..\\..\\..\\";
         using Bitmap inputImage = new(path + "image.jpg");
-        inputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
-        using Bitmap outputImage = inputImage;
 
-        BlurWholeImage(inputImage, outputImage, 3);
-        outputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
-    }
+        int matrixSize = 3;  // Можно использовать нечетные числа
+        double[,] convolutionMatrix = new double[matrixSize, matrixSize];
+        double matrixElementRatio = 1.0 / (matrixSize * matrixSize);
 
-    public static Bitmap BlurWholeImage(Bitmap inputImage, Bitmap outputImage, int blurIntensity)
-    {
-        for (int y = 0; y < inputImage.Height; ++y)
+        for (int y = 0; y < matrixSize; y++)
         {
-            for (int x = 0; x < inputImage.Width; ++x)
+            for (int x = 0; x < matrixSize; x++)
             {
-                outputImage.SetPixel(x, y, GetBlurredPixel(x, y, inputImage, blurIntensity));
+                convolutionMatrix[x, y] = matrixElementRatio;
             }
         }
 
-        return outputImage;
+        TransformImage(inputImage, path, convolutionMatrix);
     }
 
-    public static Color GetBlurredPixel(int x, int y, Bitmap inputImage, int blurIntensity)
+    public static void TransformImage(Bitmap inputImage, string path, double[,] convolutionMatrix)
     {
-        Color[,] convolutionMatrix = GetConvolutionMatrix(x, y, inputImage, blurIntensity);
-        (double, double, double) rgbSum = (0, 0, 0);
-
-        foreach (Color pixel in convolutionMatrix)
-        {
-            rgbSum.Item1 += pixel.R;
-            rgbSum.Item2 += pixel.G;
-            rgbSum.Item3 += pixel.B;
-        }
-
-        blurIntensity *= blurIntensity;
-        rgbSum.Item1 /= blurIntensity;
-        rgbSum.Item2 /= blurIntensity;
-        rgbSum.Item3 /= blurIntensity;
-
-        return Color.FromArgb(Saturate(rgbSum.Item1), Saturate(rgbSum.Item2), Saturate(rgbSum.Item3));
-    }
-
-    public static Color[,] GetConvolutionMatrix(int x, int y, Bitmap inputImage, int matrixSize)
-    {
-        Color[,] convolutionMatrix = new Color[matrixSize, matrixSize];
+        int matrixSize = convolutionMatrix.GetLength(0);
         int halfMatrixSize = matrixSize / 2;
+        int imageHeight = inputImage.Height;
+        int imageWidth = inputImage.Width;
 
-        for (int i = 0; i < matrixSize; i++)
+        using Bitmap outputImage = new(inputImage.Width, inputImage.Height);
+
+        for (int y = 0; y < imageHeight; y++)
         {
-            for (int j = 0; j < matrixSize; j++)
+            for (int x = 0; x < imageWidth; x++)
             {
-                int currentPositionX = x - halfMatrixSize + j;
-                int currentPositionY = y - halfMatrixSize + i;
+                double transformedR = 0;
+                double transformedG = 0;
+                double transformedB = 0;
 
-                if (currentPositionX < 0 || currentPositionX + 1 > inputImage.Width
-                    || currentPositionY < 0 || currentPositionY + 1 > inputImage.Height)
+                for (int i = 0, neighborY = y - halfMatrixSize; i < matrixSize; i++, neighborY++)
                 {
-                    convolutionMatrix[i, j] = inputImage.GetPixel(x, y);
+                    for (int j = 0, neighborX = x - halfMatrixSize; j < matrixSize; j++, neighborX++)
+                    {
+                        Color pixel;
+
+                        if (neighborX < 0 || neighborX >= imageWidth
+                            || neighborY < 0 || neighborY >= imageHeight)
+                        {
+                            pixel = inputImage.GetPixel(x, y);
+                        }
+                        else
+                        {
+                            pixel = inputImage.GetPixel(neighborX, neighborY);
+                        }
+
+                        transformedR += pixel.R * convolutionMatrix[i, j];
+                        transformedG += pixel.G * convolutionMatrix[i, j];
+                        transformedB += pixel.B * convolutionMatrix[i, j];
+                    }
                 }
-                else
-                {
-                    convolutionMatrix[i, j] = inputImage.GetPixel(currentPositionX, currentPositionY);
-                }
+                transformedR = Saturate(transformedR);
+                transformedG = Saturate(transformedG);
+                transformedB = Saturate(transformedB);
+
+                outputImage.SetPixel(x, y, Color.FromArgb((int)transformedR, (int)transformedG, (int)transformedB));
             }
         }
 
-        return convolutionMatrix;
+        outputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
     }
 
     public static int Saturate(double colorComponent)
     {
-        int roundedColorComponent = (int)Math.Round(colorComponent, MidpointRounding.AwayFromZero);
-
-        if (roundedColorComponent < 0)
+        if (colorComponent <= 0)
         {
             return 0;
         }
 
-        if (roundedColorComponent > 255)
+        if (colorComponent >= 255)
         {
             return 255;
         }
 
-        return roundedColorComponent;
+        return (int)Math.Round(colorComponent, MidpointRounding.AwayFromZero);
     }
 }

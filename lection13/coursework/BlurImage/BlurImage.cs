@@ -10,29 +10,30 @@ internal class BlurImage
         string path = "..\\..\\..\\";
         using Bitmap inputImage = new(path + "image.jpg");
 
-        int matrixSize = 15;  // Можно использовать нечетные числа
+        int matrixSize = 3;  // Нужно использовать нечетные числа
         double[,] convolutionMatrix = new double[matrixSize, matrixSize];
-        double matrixElementRatio = 1.0 / (matrixSize * matrixSize);
+        double blurCoefficient = 1.0 / (matrixSize * matrixSize);
 
         for (int y = 0; y < matrixSize; y++)
         {
             for (int x = 0; x < matrixSize; x++)
             {
-                convolutionMatrix[x, y] = matrixElementRatio;
+                convolutionMatrix[x, y] = blurCoefficient;
             }
         }
 
-        TransformImage(inputImage, path, convolutionMatrix);
+        using Bitmap outputImage = TransformImage(inputImage, convolutionMatrix);
+        outputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
     }
 
-    public static void TransformImage(Bitmap inputImage, string path, double[,] convolutionMatrix)
+    public static Bitmap TransformImage(Bitmap inputImage, double[,] convolutionMatrix)
     {
         int matrixSize = convolutionMatrix.GetLength(0);
         int halfMatrixSize = matrixSize / 2;
         int imageHeight = inputImage.Height;
         int imageWidth = inputImage.Width;
 
-        using Bitmap outputImage = new(inputImage.Width, inputImage.Height);
+        Bitmap outputImage = new(inputImage.Width, inputImage.Height);
 
         for (int y = 0; y < imageHeight; y++)
         {
@@ -41,13 +42,10 @@ internal class BlurImage
                 double transformedR = 0;
                 double transformedG = 0;
                 double transformedB = 0;
-                int neighborY = y - halfMatrixSize;
 
-                for (int i = 0; i < matrixSize; i++, neighborY++)
+                for (int i = 0, neighborY = y - halfMatrixSize; i < matrixSize; i++, neighborY++)
                 {
-                    int neighborX = x - halfMatrixSize;
-
-                    for (int j = 0; j < matrixSize; j++, neighborX++)
+                    for (int j = 0, neighborX = x - halfMatrixSize; j < matrixSize; j++, neighborX++)
                     {
                         Color pixel;
 
@@ -66,15 +64,12 @@ internal class BlurImage
                         transformedB += pixel.B * convolutionMatrix[i, j];
                     }
                 }
-                transformedR = Saturate(transformedR);
-                transformedG = Saturate(transformedG);
-                transformedB = Saturate(transformedB);
 
-                outputImage.SetPixel(x, y, Color.FromArgb((int)transformedR, (int)transformedG, (int)transformedB));
+                outputImage.SetPixel(x, y, Color.FromArgb(Saturate(transformedR), Saturate(transformedG), Saturate(transformedB)));
             }
         }
 
-        outputImage.Save(path + "out.jpg", ImageFormat.Jpeg);
+        return outputImage;
     }
 
     public static int Saturate(double colorComponent)

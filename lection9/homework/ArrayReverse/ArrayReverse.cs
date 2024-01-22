@@ -14,7 +14,7 @@ internal class ArrayReverse
     {
         int halfLength = array.Length / 2;
 
-        for (int i = 0; i < halfLength; i++)
+        for (int i = 0,  j = 0 ; i < halfLength; i++)
         {
             int temp = array[i];
             array[i] = array[^(1 + i)];
