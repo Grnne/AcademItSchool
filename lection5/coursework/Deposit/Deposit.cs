@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите сумму вклада, годовую ставку(в процентах) и количество месяцев");
+            Console.WriteLine("Введите сумму вклада, годовую ставку(в процентах) и количество месяцев");  //test git
 
             Console.Write("Введите сумму вклада: ");
             decimal initialMoneyAmount = decimal.Parse(Console.ReadLine()!);
